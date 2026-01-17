@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id               Int            @id @default(autoincrement())
+  email            String         @unique
+  passwordHash     String         @map("password_hash")
+  name             String
+  registrationDate DateTime       @default(now()) @map("registration_date")
+  isPremium        Boolean        @default(false) @map("is_premium")
+  role             UserRole       @default(USER)
+
+  supermarkets     Supermarket[]
+  shoppingLists    ShoppingList[]
+  subscriptions    Subscription[]
+
+  @@map("users")
+}
+
+model Supermarket {
+  id          Int                   @id @default(autoincrement())
+  userId      Int                   @map("user_id")
+  name        String
+  description String?
+  createdAt   DateTime              @default(now()) @map("created_at")
+
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lists       ShoppingList[]
+  categories  SupermarketCategory[]
+
+  @@map("supermarkets")
+}
+
+model Category {
+  id           Int                   @id @default(autoincrement())
+  name         String                @unique
+  defaultOrder Int                   @default(0) @map("default_order")
+
+  products     Product[]
+  supermarkets SupermarketCategory[]
+
+  @@map("categories")
+}
+
+model SupermarketCategory {
+  id            Int          @id @default(autoincrement())
+  supermarketId Int          @map("supermarket_id")
+  categoryId    Int          @map("category_id")
+  aisleOrder    Int          @map("aisle_order")
+
+  supermarket   Supermarket @relation(fields: [supermarketId], references: [id], onDelete: Cascade)
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([supermarketId, categoryId])
+  @@map("supermarket_categories")
+}
+
+model Product {
+  id         Int                 @id @default(autoincrement())
+  name       String
+  categoryId Int                 @map("category_id")
+
+  category   Category            @relation(fields: [categoryId], references: [id])
+  listItems  ShoppingListItem[]
+
+  @@unique([name, categoryId])
+  @@map("products")
+}
+
+model ShoppingList {
+  id            Int                 @id @default(autoincrement())
+  userId        Int                 @map("user_id")
+  supermarketId Int?                @map("supermarket_id")
+  name          String
+  createdAt     DateTime            @default(now()) @map("created_at")
+  status        String              @default("active")
+
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  supermarket   Supermarket?        @relation(fields: [supermarketId], references: [id])
+  items         ShoppingListItem[]
+
+  @@map("shopping_lists")
+}
+
+model ShoppingListItem {
+  id             Int          @id @default(autoincrement())
+  shoppingListId Int          @map("shopping_list_id")
+  productId      Int          @map("product_id")
+  quantity       Int          @default(1)
+  isChecked      Boolean      @default(false) @map("is_checked")
+  position       Int          @default(0)
+
+  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  product        Product      @relation(fields: [productId], references: [id])
+
+  @@unique([shoppingListId, productId])
+  @@map("shopping_list_items")
+}
+
+model Subscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  planType  String   @map("plan_type")
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  isActive  Boolean  @default(true) @map("is_active")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
