@@ -158,24 +158,60 @@ export async function GET(req: Request) {
     );
   }
 
-  // Obtener todos los items de la lista con su producto y categoría
-  const items = await prisma.shoppingListItem.findMany({
-    where: {
-      shoppingListId: listId,
-    },
-    include: {
-      product: {
-        include: {
-          category: true,
-        },
+  // Obtener todos los items de la lista con producto y categoría
+const items = await prisma.shoppingListItem.findMany({
+  where: {
+    shoppingListId: listId,
+  },
+  include: {
+    product: {
+      include: {
+        category: true,
       },
     },
-    // Orden inicial simple (más adelante mejoraremos esto)
-    orderBy: {
-      id: "asc",
-    },
-  });
+  },
+});
 
-  // Devolver los items de la lista
-  return NextResponse.json(items);
+// Agrupar los items por categoría
+const groupedByCategory = items.reduce((acc: any[], item) => {
+  const category = item.product.category;
+
+  // Buscar si la categoría ya existe en el acumulador
+  let categoryGroup = acc.find(
+    (group) => group.category.id === category.id
+  );
+
+  // Si no existe, crear el grupo
+  if (!categoryGroup) {
+    categoryGroup = {
+      category: {
+        id: category.id,
+        name: category.name,
+        defaultOrder: category.defaultOrder,
+      },
+      items: [],
+    };
+    acc.push(categoryGroup);
+  }
+
+  // Añadir el item a su categoría
+  categoryGroup.items.push(item);
+
+  return acc;
+}, []);
+
+// Ordenar las categorías por defaultOrder
+groupedByCategory.sort(
+  (a, b) => a.category.defaultOrder - b.category.defaultOrder
+);
+
+// Ordenar los productos dentro de cada categoría (alfabéticamente)
+groupedByCategory.forEach((group) => {
+  group.items.sort((a, b) =>
+    a.product.name.localeCompare(b.product.name)
+  );
+});
+
+// Devolver los items agrupados por categoría
+return NextResponse.json(groupedByCategory);
 }
