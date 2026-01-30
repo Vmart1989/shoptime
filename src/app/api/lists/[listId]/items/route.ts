@@ -36,7 +36,12 @@ export async function POST(req: Request) {
       id: listId,
       userId: user.id,
     },
+    // Verificar que la lista tiene supermercado asignado (premium)
+    include: {
+      supermarket: true,
+    },
   });
+
 
   if (!list) {
     return NextResponse.json(
@@ -172,6 +177,24 @@ const items = await prisma.shoppingListItem.findMany({
   },
 });
 
+//ordena categorias segun supermercado (premium)
+let supermarketCategoryOrder: Record<number, number> = {};
+
+if (list.supermarketId) {
+  const supermarketCategories =
+    await prisma.supermarketCategory.findMany({
+      where: {
+        supermarketId: list.supermarketId,
+      },
+    });
+
+  // Crear un mapa categoryId -> aisleOrder
+  supermarketCategories.forEach((sc) => {
+    supermarketCategoryOrder[sc.categoryId] = sc.aisleOrder;
+  });
+}
+
+
 // Agrupar los items por categoría
 const groupedByCategory = items.reduce((acc: any[], item) => {
   const category = item.product.category;
@@ -200,10 +223,34 @@ const groupedByCategory = items.reduce((acc: any[], item) => {
   return acc;
 }, []);
 
-// Ordenar las categorías por defaultOrder
-groupedByCategory.sort(
-  (a, b) => a.category.defaultOrder - b.category.defaultOrder
-);
+// Ordenar las categorías 
+groupedByCategory.sort((a, b) => {
+  const aOrder = supermarketCategoryOrder[a.category.id];
+  const bOrder = supermarketCategoryOrder[b.category.id];
+
+  const aHasCustom = aOrder !== undefined;
+  const bHasCustom = bOrder !== undefined;
+
+  // 1️⃣ Ambas categorías tienen orden personalizado
+  if (aHasCustom && bHasCustom) {
+    return aOrder - bOrder;
+  }
+
+  // 2️⃣ Solo A tiene orden personalizado → A va antes
+  if (aHasCustom && !bHasCustom) {
+    return -1;
+  }
+
+  // 3️⃣ Solo B tiene orden personalizado → B va antes
+  if (!aHasCustom && bHasCustom) {
+    return 1;
+  }
+
+  // 4️⃣ Ninguna tiene orden personalizado → usar orden por defecto
+  return a.category.defaultOrder - b.category.defaultOrder;
+});
+
+
 
 // Ordenar los productos dentro de cada categoría (alfabéticamente)
 groupedByCategory.forEach((group) => {
