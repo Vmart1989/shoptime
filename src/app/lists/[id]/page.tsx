@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Header from "src/app/components/Header";
+import { TrashIcon } from "@heroicons/react/24/outline";
+
+
 
 // Página que muestra el contenido de una lista concreta
 export default function ListDetailPage() {
@@ -289,173 +293,201 @@ const updateQuantity = async (itemId: number, newQuantity: number) => {
   // =========================
   // RENDER
   // =========================
-  if (loading) {
-    return <p className="p-6">Cargando lista...</p>;
-  }
-
+ 
   return (
-    /* Selector de supermercado */
+    <div className="min-h-screen bg-shop-bg flex flex-col">
+      <Header />
 
-  <>
-      <div className="mb-6">
-        <label className="block text-sm font-medium mb-1">
-          Supermercado
-        </label>
+      <main className="flex-1">
+        <section className="max-w-6xl mx-auto px-4 py-10 space-y-8">
+          {loading ? (
+            <p className="text-shop-gray">Cargando lista...</p>
+          ) : (
+            <>
+              {/* Supermarket selector */}
+              <div className="bg-white rounded-xl shadow p-6">
+                <label className="block text-sm font-medium text-shop-blue mb-2">
+                  Supermercado
+                </label>
 
-        <select
-          className="border p-2 w-full"
-          value={selectedSupermarket ?? ""}
-          onChange={(e) => changeSupermarket(
-            e.target.value ? Number(e.target.value) : null
-          )}
-        >
-          {supermarkets.length === 0 && (
-            <option disabled>
-              No tienes supermercados creados (Premium)
-            </option>
-          )}
-
-          <option value="">
-            Sin supermercado (orden general)
-          </option>
-
-          {supermarkets.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
-      </div><div className="p-6">
-        {/* Añadir producto */}
-        <div className="mb-6">
-          <input
-            className="border p-2 w-full mb-2"
-            placeholder="Añadir producto..."
-            value={search}
-            onChange={(e) => searchProducts(e.target.value)} />
-
-          {results.length > 0 && (
-            <ul className="border border-t-0 bg-white">
-              {results.map((product) => (
-                <li
-                  key={product.id}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    setSelectedProduct(product);
-                    setSearch(product.name);
-                    setResults([]);
-                  } }
+                <select
+                  className="w-full border border-gray-300 rounded-md p-2 mb-2"
+                  value={selectedSupermarket ?? ""}
+                  onChange={(e) =>
+                    changeSupermarket(
+                      e.target.value ? Number(e.target.value) : null
+                    )
+                  }
                 >
-                  {product.name}
-                </li>
-              ))}
-            </ul>
-          )}
+                  <option value="">
+                    Sin supermercado (orden general)
+                  </option>
 
-          {/* Selector de categoría SOLO para producto nuevo */}
-          {!selectedProduct && search.trim() !== "" && (
-            <select
-              className="border p-2 w-full mt-2"
-              value={selectedCategory ?? ""}
-              onChange={(e) => setSelectedCategory(Number(e.target.value))}
-            >
-              <option value="">Selecciona categoría</option>
+                  {supermarkets.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              
 
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          )}
+              {/* Add product */}
+              
+                <input
+                  className="w-full border border-gray-300 rounded-md p-2 mb-2"
+                  placeholder="Añadir producto..."
+                  value={search}
+                  onChange={(e) => searchProducts(e.target.value)}
+                />
 
+                {results.length > 0 && (
+                  <ul className="border rounded-md bg-white">
+                    {results.map((product) => (
+                      <li
+                        key={product.id}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setSearch(product.name);
+                          setResults([]);
+                        }}
+                      >
+                        {product.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-          <div className="flex items-center gap-2 mt-2">
-            <input
-              type="number"
-              min={1}
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="w-20 border p-2" />
+                {!selectedProduct && search.trim() !== "" && (
+                  <select
+                    className="w-full border border-gray-300 rounded-md p-2"
+                    value={selectedCategory ?? ""}
+                    onChange={(e) =>
+                      setSelectedCategory(Number(e.target.value))
+                    }
+                  >
+                    <option value="">
+                      Selecciona categoría
+                    </option>
 
-          <button
-            onClick={addProduct}
-            disabled={
-              !search ||
-              quantity < 1 ||
-              (!selectedProduct && !selectedCategory)
-            }
-            className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          >
-            Añadir
-          </button>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
 
-          </div>
-        </div>
-
-        {/* Lista de productos */}
-        {groups.length === 0 && (
-          <p className="text-gray-500">
-            Esta lista todavía no tiene productos.
-          </p>
-        )}
-
-        {groups.map((group) => (
-          <div key={group.category.id} className="mb-6">
-            <h2 className="font-bold mb-2">{group.category.name}</h2>
-
-            <ul className="space-y-2">
-              {group.items.map((item: any) => (
-                <li
-                  key={item.id}
-                  className="flex items-center justify-between border p-2 rounded"
-                >
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={item.isChecked}
-                      onChange={(e) => toggleChecked(item.id, e.target.checked)} />
-                    <span
-                      className={item.isChecked
-                        ? "line-through text-gray-400"
-                        : ""}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{item.product.name}</span>
-
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="px-2 border rounded"
-                        >
-                          −
-                        </button>
-
-                        <span className="w-6 text-center">
-                          {item.quantity}
-                        </span>
-
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="px-2 border rounded"
-                        >
-                          +
-                        </button>
-                      </div>
-
-                    </span>
-                  </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    min={1}
+                    value={quantity}
+                    onChange={(e) =>
+                      setQuantity(Number(e.target.value))
+                    }
+                    className="w-24 border border-gray-300 rounded-md p-2"
+                  />
 
                   <button
-                    onClick={() => removeItem(item.id)}
-                    className="text-red-500 text-sm"
+                    onClick={addProduct}
+                    disabled={
+                      !search ||
+                      quantity < 1 ||
+                      (!selectedProduct && !selectedCategory)
+                    }
+                    className="bg-shop-green text-white px-5 py-2 rounded-md font-medium disabled:opacity-50"
                   >
-                    Eliminar
+                    Añadir
                   </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div></>
+                </div>
+             </div>
+             
+
+              {/* Items */}
+              {groups.length === 0 ? (
+  <p className="text-shop-gray">
+    Esta lista todavía no tiene productos.
+  </p>
+) : (
+  <div className="bg-white rounded-xl shadow p-6 space-y-6">
+    {groups.map((group) => (
+      <div key={group.category.id}>
+        {/* Category title */}
+        <h2 className="font-bold text-shop-blue mb-3">
+          {group.category.name}
+        </h2>
+
+        <ul className="space-y-3">
+          {group.items.map((item: any) => (
+            <li
+              key={item.id}
+              className="flex items-center justify-between"
+            >
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={item.isChecked}
+                  onChange={(e) =>
+                    toggleChecked(item.id, e.target.checked)
+                  }
+                />
+
+                <span
+                  className={
+                    item.isChecked
+                      ? "line-through text-gray-400"
+                      : ""
+                  }
+                >
+                  {item.product.name}
+                </span>
+              </label>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    updateQuantity(item.id, item.quantity - 1)
+                  }
+                  className="px-2 border rounded"
+                >
+                  −
+                </button>
+
+                <span className="w-6 text-center">
+                  {item.quantity}
+                </span>
+
+                <button
+                  onClick={() =>
+                    updateQuantity(item.id, item.quantity + 1)
+                  }
+                  className="px-2 border rounded"
+                >
+                  +
+                </button>
+
+                {/* Trash icon */}
+                <button
+                  onClick={() => removeItem(item.id)}
+                  className="ml-2 text-red-500 hover:text-red-700 transition"
+                  title="Eliminar producto"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+)}
+
+            </>
+          )}
+        </section>
+      </main>
+    </div>
   );
 }

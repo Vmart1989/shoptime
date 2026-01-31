@@ -1,17 +1,17 @@
 /** @type {import('tailwindcss').Config} */
-// Configuración de Tailwind con los colores de ShopTime
 module.exports = {
   content: [
-    "./src/app/**/*.{js,ts,jsx,tsx}",
-    "./src/components/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}", // ✅ scan everything in src
   ],
   theme: {
     extend: {
       colors: {
-        primary: "#1F4E79",     // Azul ShopTime
-        primaryLight: "#3A6EA5",
-        accent: "#1EC773",      // Verde ShopTime
-        background: "#F5F7FA",
+        "shop-green": "#4E8F5A",
+        "shop-green-light": "#6FBF8E",
+        "shop-blue": "#1F4E79",
+        "shop-blue-dark": "#163A5F",
+        "shop-bg": "#F4F6F8",
+        "shop-gray": "#6B7280",
       },
     },
   },

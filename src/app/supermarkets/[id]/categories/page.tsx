@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Header from "src/app/components/Header";
+
 
 // DnD Kit (drag & drop)
 import {
@@ -28,12 +30,14 @@ function SortableItem({
 }) {
   // Hook que hace que el elemento sea draggable
   const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id });
+  attributes,
+  listeners,
+  setNodeRef,
+  transform,
+  transition,
+  isDragging,
+} = useSortable({ id });
+
 
   // Estilos dinámicos durante el drag
   const style = {
@@ -47,7 +51,19 @@ function SortableItem({
       style={style}
       {...attributes}
       {...listeners}
-      className="border p-3 bg-white rounded cursor-grab"
+      className={`
+  rounded-lg shadow
+  px-4 py-3
+  flex items-center
+  cursor-grab active:cursor-grabbing
+  border transition
+
+  ${
+    isDragging
+      ? "bg-shop-bg border-shop-blue ring-2 ring-shop-blue"
+      : "bg-white border-gray-200 hover:shadow-md"
+  }
+`}
     >
       {name}
     </li>
@@ -65,6 +81,8 @@ export default function SupermarketCategoriesPage() {
   // Estado con las categorías ordenables
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [supermarketName, setSupermarketName] = useState<string>("");
+
 
   // =========================
   // Cargar categorías del supermercado
@@ -75,6 +93,9 @@ export default function SupermarketCategoriesPage() {
       router.push("/login");
       return;
     }
+
+
+
 
     // Endpoint que devuelve categorías + orden actual
     const res = await fetch(
@@ -102,6 +123,32 @@ export default function SupermarketCategoriesPage() {
     setCategories(data);
     setLoading(false);
   };
+
+      // =========================
+// Cargar nombre del supermercado
+// =========================
+const fetchSupermarketName = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  const res = await fetch("/api/supermarkets", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) return;
+
+  const data = await res.json();
+
+  const supermarket = data.find(
+    (s: any) => s.id === Number(supermarketId)
+  );
+
+  if (supermarket) {
+    setSupermarketName(supermarket.name);
+  }
+};
 
   // =========================
   // Drag & Drop handler
@@ -157,8 +204,10 @@ export default function SupermarketCategoriesPage() {
   // useEffect inicial
   // =========================
   useEffect(() => {
-    fetchCategories();
-  }, [supermarketId]);
+  fetchCategories();
+  fetchSupermarketName();
+}, [supermarketId]);
+
 
   // =========================
   // Render
@@ -169,9 +218,17 @@ export default function SupermarketCategoriesPage() {
 
   return (
     <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-4">
-        Ordenar categorías
-      </h1>
+      <h1 className="text-2xl font-bold text-shop-blue">
+  {supermarketName || "Ordenar categorías"}
+</h1>
+
+{/* Botón guardar */}
+      <button
+        onClick={saveOrder}
+        className="mt-6 mb-6 bg-green-600 text-white px-4 py-2 rounded w-full"
+      >
+        Guardar orden
+      </button>
 
       {/* Drag & Drop container */}
       <DndContext
