@@ -20,6 +20,12 @@ export default function ListDetailPage() {
   const [supermarkets, setSupermarkets] = useState<any[]>([]);
   const [selectedSupermarket, setSelectedSupermarket] = useState<number | null>(null);
 
+  
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+
+
+
  // =========================
 // CARGAR SUPERMERCADOS
 // =========================
@@ -52,6 +58,26 @@ const fetchSupermarkets = async () => {
   setSupermarkets(JSON.parse(text));
 };
 
+// =========================
+// CARGAR CATEGORÍAS GLOBALES
+// =========================
+const fetchCategories = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  const res = await fetch("/api/categories", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    setCategories([]);
+    return;
+  }
+
+  setCategories(await res.json());
+};
 
 
 
@@ -104,6 +130,7 @@ const fetchSupermarkets = async () => {
   useEffect(() => {
   fetchItems();
   fetchSupermarkets();
+  fetchCategories();
 }, [listId]);
 
 // Cambiar supermercado de la lista
@@ -127,23 +154,33 @@ const changeSupermarket = async (supermarketId: number | null) => {
 
 
   // =========================
-  // AUTOCOMPLETE DE PRODUCTOS
-  // =========================
-  const searchProducts = async (value: string) => {
-    setSearch(value);
-    setSelectedProduct(null);
+// AUTOCOMPLETE DE PRODUCTOS
+// =========================
+const searchProducts = async (value: string) => {
+  setSearch(value);
+  setSelectedProduct(null);
 
-    if (value.length < 2) {
-      setResults([]);
-      return;
-    }
+  if (value.length < 2) {
+    setResults([]);
+    return;
+  }
 
-    const res = await fetch(`/api/products?search=${value}`);
-    setResults(await res.json());
-  };
+  const token = localStorage.getItem("token");
+  if (!token) return;
 
-  
+  const res = await fetch(`/api/products?search=${value}`, {
+    headers: {
+      Authorization: `Bearer ${token}`, // 🔑 CLAVE
+    },
+  });
 
+  if (!res.ok) {
+    setResults([]);
+    return;
+  }
+
+  setResults(await res.json());
+};
 
 
   // =========================
@@ -163,7 +200,7 @@ const changeSupermarket = async (supermarketId: number | null) => {
     } else {
       body = {
         productName: search,
-        categoryId: 7, // Despensa por defecto
+        categoryId: selectedCategory,
         quantity,
       };
     }
@@ -315,6 +352,24 @@ const updateQuantity = async (itemId: number, newQuantity: number) => {
             </ul>
           )}
 
+          {/* Selector de categoría SOLO para producto nuevo */}
+          {!selectedProduct && search.trim() !== "" && (
+            <select
+              className="border p-2 w-full mt-2"
+              value={selectedCategory ?? ""}
+              onChange={(e) => setSelectedCategory(Number(e.target.value))}
+            >
+              <option value="">Selecciona categoría</option>
+
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+
           <div className="flex items-center gap-2 mt-2">
             <input
               type="number"
@@ -323,13 +378,18 @@ const updateQuantity = async (itemId: number, newQuantity: number) => {
               onChange={(e) => setQuantity(Number(e.target.value))}
               className="w-20 border p-2" />
 
-            <button
-              onClick={addProduct}
-              disabled={!search || quantity < 1}
-              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-            >
-              Añadir
-            </button>
+          <button
+            onClick={addProduct}
+            disabled={
+              !search ||
+              quantity < 1 ||
+              (!selectedProduct && !selectedCategory)
+            }
+            className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          >
+            Añadir
+          </button>
+
           </div>
         </div>
 

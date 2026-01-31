@@ -1,36 +1,52 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db/prisma";
+import { getUserFromRequest } from "@/server/auth/getUserFromRequest";
 
-// Endpoint para buscar productos del catálogo global (autocomplete)
+// Endpoint para autocomplete de productos
+// Devuelve productos globales + productos privados del usuario
 export async function GET(req: Request) {
   try {
-    // Obtener la URL de la request para leer los query params
-    const { searchParams } = new URL(req.url);
+    // Obtener usuario autenticado
+    const user = await getUserFromRequest(req);
 
-    // Obtener el parámetro "search" (?search=lec)
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // Leer query params
+    const { searchParams } = new URL(req.url);
     const search = searchParams.get("search");
 
-    // Si no hay texto de búsqueda, devolvemos array vacío
-    // (evita devolver todo el catálogo por error)
+    // Evitar búsquedas demasiado cortas
     if (!search || search.trim().length < 2) {
       return NextResponse.json([]);
     }
 
-    // Buscar productos cuyo nombre contenga el texto introducido
+    // Buscar productos visibles para este usuario
     const products = await prisma.product.findMany({
       where: {
-        name: {
-          startsWith: search, // Coincidencia por prefijo
-          mode: "insensitive", // Búsqueda sin distinguir mayúsculas/minúsculas
-        },
+        AND: [
+          {
+            OR: [
+              { userId: null },     // Productos globales
+              { userId: user.id },  // Productos privados del usuario
+            ],
+          },
+          {
+            name: {
+              startsWith: search,
+              mode: "insensitive",
+            },
+          },
+        ],
       },
-      // Limitar resultados para que el autocomplete sea rápido
       take: 10,
-      // Incluir la categoría para mostrarla en el frontend si se desea
       include: {
         category: true,
       },
-      // Ordenar alfabéticamente para resultados más previsibles
       orderBy: {
         name: "asc",
       },

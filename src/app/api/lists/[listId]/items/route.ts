@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db/prisma";
 import { getUserFromRequest } from "@/server/auth/getUserFromRequest";
 
+// Capitaliza la primera letra de un texto
+function capitalizeFirstLetter(text: string): string {
+  if (!text) return text;
+
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+
 // Endpoint para añadir un producto a una lista concreta
 export async function POST(req: Request) {
   // Obtener el usuario autenticado a partir del token JWT
@@ -64,21 +72,28 @@ export async function POST(req: Request) {
     // Caso 2: producto nuevo
     else if (productName && categoryId) {
       const existingProduct = await prisma.product.findFirst({
-        where: {
-          name: {
-            equals: productName,
-            mode: "insensitive",
-          },
-        },
-      });
+  where: {
+    name: {
+      equals: productName,
+      mode: "insensitive",
+    },
+    OR: [
+      { userId: null },        // producto global
+      { userId: user.id },     // producto privado del usuario
+    ],
+  },
+});
+
 
       if (existingProduct) {
         finalProductId = existingProduct.id;
       } else {
+        const formattedName = capitalizeFirstLetter(productName.trim());
         const newProduct = await prisma.product.create({
           data: {
-            name: productName,
+            name: formattedName,
             categoryId,
+            userId: user.id, // ASOCIAR AL USUARIO
           },
         });
 

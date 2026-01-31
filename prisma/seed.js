@@ -13,15 +13,20 @@ async function main() {
   await prisma.category.createMany({
     data: [
       { name: "Frutas y verduras", defaultOrder: 1 },
-      { name: "Carnicería", defaultOrder: 2 },
-      { name: "Pescadería", defaultOrder: 3 },
-      { name: "Lácteos", defaultOrder: 4 },
-      { name: "Panadería", defaultOrder: 5 },
-      { name: "Bebidas", defaultOrder: 6 },
-      { name: "Despensa", defaultOrder: 7 },
-      { name: "Congelados", defaultOrder: 8 },
-      { name: "Limpieza", defaultOrder: 9 },
-      { name: "Higiene", defaultOrder: 10 },
+    { name: "Carnicería", defaultOrder: 2 },
+    { name: "Pescadería", defaultOrder: 3 },
+    { name: "Lácteos", defaultOrder: 4 },
+    { name: "Panadería", defaultOrder: 5 },
+    { name: "Bebidas", defaultOrder: 6 },
+    { name: "Despensa", defaultOrder: 7 },
+    { name: "Congelados", defaultOrder: 8 },
+    { name: "Limpieza", defaultOrder: 9 },
+    { name: "Higiene personal", defaultOrder: 10 },
+    { name: "Bebé", defaultOrder: 11 },
+    { name: "Mascotas", defaultOrder: 12 },
+    { name: "Orgánico (bio)", defaultOrder: 13 },
+    { name: "Hogar", defaultOrder: 14 },
+    { name: "Farmacia", defaultOrder: 15 },
     ],
     skipDuplicates: true, // Evita duplicados si se ejecuta más de una vez
   });
@@ -116,6 +121,7 @@ async function main() {
   { name: "Jamón cocido", categoryId: categoryMap["Carnicería"] },
   { name: "Jamón serrano", categoryId: categoryMap["Carnicería"] },
   { name: "Chorizo", categoryId: categoryMap["Carnicería"] },
+  { name: "Salchichón", categoryId: categoryMap["Carnicería"] },
 
   /* ===================== PESCADERÍA ===================== */
   { name: "Salmón", categoryId: categoryMap["Pescadería"] },
@@ -127,7 +133,7 @@ async function main() {
   { name: "Gambas", categoryId: categoryMap["Pescadería"] },
   { name: "Mejillones", categoryId: categoryMap["Pescadería"] },
   { name: "Palitos de cangrejo", categoryId: categoryMap["Pescadería"] },
-  { name: "Atún en conserva", categoryId: categoryMap["Pescadería"] },
+ 
 
   /* ===================== DESPENSA ===================== */
   { name: "Arroz", categoryId: categoryMap["Despensa"] },
@@ -147,9 +153,15 @@ async function main() {
   { name: "Mayonesa", categoryId: categoryMap["Despensa"] },
   { name: "Ketchup", categoryId: categoryMap["Despensa"] },
   { name: "Mermelada", categoryId: categoryMap["Despensa"] },
+  { name: "Crema de cacahuete", categoryId: categoryMap["Despensa"] },
+  { name: "Crema de almendra", categoryId: categoryMap["Despensa"] },
+  { name: "Café en cápsulas", categoryId: categoryMap["Despensa"] },
+  { name: "Café molido", categoryId: categoryMap["Despensa"] },
+  { name: "Café en grano", categoryId: categoryMap["Despensa"] },
   { name: "Cacao en polvo", categoryId: categoryMap["Despensa"] },
   { name: "Cereales", categoryId: categoryMap["Despensa"] },
   { name: "Galletas", categoryId: categoryMap["Despensa"] },
+   { name: "Atún en conserva", categoryId: categoryMap["Pescadería"] },
 
   /* ===================== BEBIDAS ===================== */
   { name: "Agua mineral", categoryId: categoryMap["Bebidas"] },
@@ -175,6 +187,10 @@ async function main() {
   { name: "Pastillas lavavajillas", categoryId: categoryMap["Limpieza"] },
   { name: "Estropajos", categoryId: categoryMap["Limpieza"] },
 
+  /* ===================== BEBE ===================== */
+  { name: "Pañales", categoryId: categoryMap["Bebé"] },
+  { name: "Toallitas de bebé", categoryId: categoryMap["Bebé"] },
+
   /* ===================== HIGIENE ===================== */
   { name: "Gel de ducha", categoryId: categoryMap["Higiene"] },
   { name: "Champú", categoryId: categoryMap["Higiene"] },
@@ -186,6 +202,12 @@ async function main() {
   { name: "Papel higiénico", categoryId: categoryMap["Higiene"] },
   { name: "Toallitas húmedas", categoryId: categoryMap["Higiene"] },
   { name: "Cuchillas de afeitar", categoryId: categoryMap["Higiene"] },
+  { name: "Crema de afeitar", categoryId: categoryMap["Higiene"] },
+
+/* ===================== MASCOTAS ===================== */
+  { name: "Pienso de perro", categoryId: categoryMap["Mascotas"] },
+  { name: "Pienso de gato", categoryId: categoryMap["Mascotas"] },
+
     ],
     skipDuplicates: true,
   });

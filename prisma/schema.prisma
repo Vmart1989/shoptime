@@ -19,39 +19,42 @@ enum UserRole {
 }
 
 model User {
-  id               Int            @id @default(autoincrement())
-  email            String         @unique
-  passwordHash     String         @map("password_hash")
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  passwordHash     String   @map("password_hash")
   name             String
-  registrationDate DateTime       @default(now()) @map("registration_date")
-  isPremium        Boolean        @default(false) @map("is_premium")
-  role             UserRole       @default(USER)
+  registrationDate DateTime @default(now()) @map("registration_date")
+  isPremium        Boolean  @default(false) @map("is_premium")
+  role             UserRole @default(USER)
 
-  supermarkets     Supermarket[]
-  shoppingLists    ShoppingList[]
-  subscriptions    Subscription[]
+  //Productos privados creados por el usuario
+  products Product[]
+
+  supermarkets  Supermarket[]
+  shoppingLists ShoppingList[]
+  subscriptions Subscription[]
 
   @@map("users")
 }
 
 model Supermarket {
-  id          Int                   @id @default(autoincrement())
-  userId      Int                   @map("user_id")
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
   name        String
   description String?
-  createdAt   DateTime              @default(now()) @map("created_at")
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lists       ShoppingList[]
-  categories  SupermarketCategory[]
+  user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lists      ShoppingList[]
+  categories SupermarketCategory[]
 
   @@map("supermarkets")
 }
 
 model Category {
-  id           Int                   @id @default(autoincrement())
-  name         String                @unique
-  defaultOrder Int                   @default(0) @map("default_order")
+  id           Int    @id @default(autoincrement())
+  name         String @unique
+  defaultOrder Int    @default(0) @map("default_order")
 
   products     Product[]
   supermarkets SupermarketCategory[]
@@ -60,55 +63,62 @@ model Category {
 }
 
 model SupermarketCategory {
-  id            Int          @id @default(autoincrement())
-  supermarketId Int          @map("supermarket_id")
-  categoryId    Int          @map("category_id")
-  aisleOrder    Int          @map("aisle_order")
+  id            Int @id @default(autoincrement())
+  supermarketId Int @map("supermarket_id")
+  categoryId    Int @map("category_id")
+  aisleOrder    Int @map("aisle_order")
 
-  supermarket   Supermarket @relation(fields: [supermarketId], references: [id], onDelete: Cascade)
-  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  supermarket Supermarket @relation(fields: [supermarketId], references: [id], onDelete: Cascade)
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@unique([supermarketId, categoryId])
   @@map("supermarket_categories")
 }
 
 model Product {
-  id         Int                 @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
   name       String
-  categoryId Int                 @map("category_id")
+  categoryId Int    @map("category_id")
 
-  category   Category            @relation(fields: [categoryId], references: [id])
-  listItems  ShoppingListItem[]
+  category Category @relation(fields: [categoryId], references: [id])
 
-  @@unique([name, categoryId])
+  // Nsi es null → producto global
+  // si tiene valor → producto privado del usuario
+  userId Int?  @map("user_id")
+  user   User? @relation(fields: [userId], references: [id])
+
+  listItems ShoppingListItem[]
+
+  // 🔹 Permitimos mismo nombre en global y privado
+  @@unique([name, categoryId, userId])
   @@map("products")
 }
 
 model ShoppingList {
-  id            Int                 @id @default(autoincrement())
-  userId        Int                 @map("user_id")
-  supermarketId Int?                @map("supermarket_id")
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  supermarketId Int?     @map("supermarket_id")
   name          String
-  createdAt     DateTime            @default(now()) @map("created_at")
-  status        String              @default("active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  status        String   @default("active")
 
-  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  supermarket   Supermarket?        @relation(fields: [supermarketId], references: [id])
-  items         ShoppingListItem[]
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  supermarket Supermarket?       @relation(fields: [supermarketId], references: [id])
+  items       ShoppingListItem[]
 
   @@map("shopping_lists")
 }
 
 model ShoppingListItem {
-  id             Int          @id @default(autoincrement())
-  shoppingListId Int          @map("shopping_list_id")
-  productId      Int          @map("product_id")
-  quantity       Int          @default(1)
-  isChecked      Boolean      @default(false) @map("is_checked")
-  position       Int          @default(0)
+  id             Int     @id @default(autoincrement())
+  shoppingListId Int     @map("shopping_list_id")
+  productId      Int     @map("product_id")
+  quantity       Int     @default(1)
+  isChecked      Boolean @default(false) @map("is_checked")
+  position       Int     @default(0)
 
-  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
-  product        Product      @relation(fields: [productId], references: [id])
+  shoppingList ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [productId], references: [id])
 
   @@unique([shoppingListId, productId])
   @@map("shopping_list_items")
@@ -122,7 +132,7 @@ model Subscription {
   endDate   DateTime @map("end_date")
   isActive  Boolean  @default(true) @map("is_active")
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
 }
