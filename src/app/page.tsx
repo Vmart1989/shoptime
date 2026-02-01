@@ -30,13 +30,13 @@ export default function HomePage() {
         <section className="max-w-6xl mx-auto px-4 py-12 space-y-12 ">
 
           {/* HERO */}
-          <section className="bg-white rounded-xl shadow  p-6 md:pb-0 md:pt-0 md:p-6 grid gap-6 md:grid-cols-2 items-center">
+          <section className="bg-white rounded-xl shadow  p-6 md:pb-0 md:pt-0 md:pr-0 md:pl-6 grid gap-6 md:grid-cols-2 items-center">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-shop-blue mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-shop-blue mb-4">
                 Optimiza tus compras<br />en el supermercado
               </h1>
 
-              <p className="text-shop-gray mb-6">
+              <p className="text-shop-gray mb-6 text-lg">
                 Crea listas organizadas según el recorrido real de tu tienda habitual.
               </p>
 
@@ -62,11 +62,11 @@ export default function HomePage() {
             </div>
 
             {/* Imagen mockup (opcional) */}
-            <div className="hidden md:flex justify-center">
+            <div className="md:flex justify-content-end rounded-r-lg ">
               <img
-                src="/man-in-supermarket.png"
+                src="/man-in-supermarket.jpg"
                 alt="ShopTime App"
-                className="max-h-100"
+                className="max-h-100 rounded-xl md:rounded-s"
               />
             </div>
           </section>
