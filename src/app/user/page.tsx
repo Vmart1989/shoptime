@@ -109,7 +109,7 @@ export default function UserPage() {
           {/* Métricas */}
           <div className="grid grid-cols-2 gap-4">
             <div onClick={() => router.push("/lists")} className="bg-white rounded-xl shadow p-4 text-center cursor-pointer">
-              <p className="text-sm text-shop-gray">Listas creadas</p>
+              <p className="text-sm text-shop-gray">Mis listas</p>
               <p className="text-2xl font-bold text-shop-blue">
                 {user.listsCount ?? 0}
               </p>
@@ -117,7 +117,7 @@ export default function UserPage() {
 
             <div onClick={() => router.push("/supermarkets")} className="bg-white rounded-xl shadow p-4 text-center cursor-pointer">
               <p className="text-sm text-shop-gray">
-                Supermercados creados
+                Mis supermercados
               </p>
               <p className="text-2xl font-bold text-shop-blue">
                 {user.supermarketsCount ?? 0}

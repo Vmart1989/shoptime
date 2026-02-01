@@ -73,7 +73,7 @@ const logout = () => {
           <img
             src="/icono-circulo.png"
             alt="ShopTime"
-            className="h-30 w-32 sm:h-40 sm:w-45"
+            className="h-30 w-30 sm:h-40 sm:w-40"
             onClick={() => router.push("/")}
           />
          
@@ -89,7 +89,7 @@ const logout = () => {
     {/* Usuario */}
     <div  onClick={() => router.push("/user")} className="flex items-center gap-2 text-sm text-shop-blue cursor-pointer">
       <UserCircleIcon className="h-8 w-8" />
-      <span className="hidden sm:inline font-medium">
+      <span onClick={() => router.push("/user")} className="hidden sm:inline font-medium">
   {user.name || user.email}
 </span>
 
