@@ -27,6 +27,13 @@ export default function ListDetailPage() {
   
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
+
+
+  const [itemsExpanded, setItemsExpanded] = useState(false);
+
+
+
 
 
 
@@ -83,6 +90,24 @@ const fetchCategories = async () => {
   setCategories(await res.json());
 };
 
+// =========================
+// CARGAR USUARIO (PREMIUM)
+// =========================
+const fetchMe = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  const res = await fetch("/api/auth/me", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) return;
+
+  const data = await res.json();
+  setIsPremium(!!data.isPremium);
+};
 
 
   // =========================
@@ -135,6 +160,7 @@ const fetchCategories = async () => {
   fetchItems();
   fetchSupermarkets();
   fetchCategories();
+  fetchMe();
 }, [listId]);
 
 // Cambiar supermercado de la lista
@@ -301,8 +327,20 @@ const updateQuantity = async (itemId: number, newQuantity: number) => {
       <main className="flex-1">
         <section className="max-w-6xl mx-auto px-4 py-10 space-y-8">
           {loading ? (
-            <p className="text-shop-gray">Cargando lista...</p>
-          ) : (
+          <div className="flex items-center justify-center py-16">
+            <div
+              className="
+                h-10 w-10
+                rounded-full
+                border-4
+                border-gray-200
+                border-t-shop-green
+                animate-spin
+              "
+              aria-label="Cargando"
+            />
+          </div>
+        ) : (
             <>
               {/* Supermarket selector */}
               <div className="bg-white rounded-xl shadow p-6">
@@ -311,24 +349,34 @@ const updateQuantity = async (itemId: number, newQuantity: number) => {
                 </label>
 
                 <select
-                  className="w-full border border-gray-300 rounded-md p-2 mb-2"
-                  value={selectedSupermarket ?? ""}
-                  onChange={(e) =>
-                    changeSupermarket(
-                      e.target.value ? Number(e.target.value) : null
-                    )
-                  }
-                >
-                  <option value="">
-                    Sin supermercado (orden general)
-                  </option>
+                className="
+                  w-full border border-gray-300 rounded-md p-2 mb-2
+                  disabled:bg-gray-100 disabled:text-gray-400
+                "
+                value={selectedSupermarket ?? ""}
+                onChange={(e) =>
+                  changeSupermarket(
+                    e.target.value ? Number(e.target.value) : null
+                  )
+                }
+                
+              >
+                <option value="">
+                  Sin supermercado (orden general)
+                </option>
 
-                  {supermarkets.map((s) => (
+                {isPremium ? (
+                  supermarkets.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
                     </option>
-                  ))}
-                </select>
+                  ))
+                ) : (
+                  <option value="" disabled>
+                    🔒 Cambia a Premium para crear supermercados
+                  </option>
+                )}
+              </select>
               
 
               {/* Add product */}
@@ -405,12 +453,55 @@ const updateQuantity = async (itemId: number, newQuantity: number) => {
              
 
               {/* Items */}
+
+             <button
+            onClick={() => setItemsExpanded(true)}
+            className="
+              mb-4 w-full
+              bg-shop-blue text-white
+              py-2 rounded-md
+              font-medium
+              hover:bg-shop-blue-dark transition
+            "
+          >
+            Ver lista a pantalla completa
+          </button>
+          {itemsExpanded && (
+            <div className="fixed inset-0 bg-black/40 z-40" />
+          )}
+
+       
               {groups.length === 0 ? (
-  <p className="text-shop-gray">
-    Esta lista todavía no tiene productos.
-  </p>
-) : (
-  <div className="bg-white rounded-xl shadow p-6 space-y-6">
+          <p className="text-shop-gray">
+            Esta lista todavía no tiene productos.
+          </p>
+        ) : (
+          
+          <div
+          className={`
+            bg-white rounded-xl shadow space-y-6
+            ${itemsExpanded
+              ? "fixed inset-4 z-50 p-4 overflow-y-auto"
+              : "p-6"}
+          `}
+        >
+          {itemsExpanded && (
+        <button
+          onClick={() => setItemsExpanded(false)}
+          className="
+            absolute top-3 right-3
+          z-50 
+            bg-white 
+            px-2 shadow
+            text-lg
+            hover:bg-gray-100 transition
+          "
+          title="Cerrar"
+        >
+          ✕
+        </button>
+)}
+
     {groups.map((group) => (
       <div key={group.category.id}>
         {/* Category title */}

@@ -62,8 +62,20 @@ export default function ListsPage() {
 
           {/* Content */}
           {loading ? (
-            <p className="text-shop-gray">Cargando listas...</p>
-          ) : lists.length === 0 ? (
+          <div className="flex items-center justify-center py-16">
+            <div
+              className="
+                h-10 w-10
+                rounded-full
+                border-4
+                border-gray-200
+                border-t-shop-green
+                animate-spin
+              "
+              aria-label="Cargando"
+            />
+          </div>
+        ) : lists.length === 0 ? (
             <div className="bg-white rounded-xl shadow p-8 text-center">
               <p className="text-shop-gray mb-4">
                 Todavía no tienes ninguna lista creada.

@@ -22,6 +22,9 @@ export async function GET(req: Request) {
     const premiumUsers = await prisma.user.count({
       where: { isPremium: true },
     });
+    const adminUsers = await prisma.user.count({
+  where: { role: "ADMIN" },
+    });
 
     // =========================
     // PRODUCTOS
@@ -98,6 +101,26 @@ export async function GET(req: Request) {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
+// =========================
+    // SUPERMERCADOS
+    // =========================
+      const supermarkets = await prisma.supermarket.findMany({
+  select: {
+    id: true,
+    name: true,
+    createdAt: true,
+    user: {
+      select: {
+        email: true,
+      },
+    },
+  },
+  orderBy: {
+    createdAt: "desc",
+  },
+});
+
+
     // =========================
     // RESPUESTA FINAL
     // =========================
@@ -105,7 +128,8 @@ export async function GET(req: Request) {
       users: {
         total: totalUsers,
         premium: premiumUsers,
-        free: totalUsers - premiumUsers,
+        admin: adminUsers,
+        free: totalUsers - premiumUsers - adminUsers,
       },
       products: {
         total: totalProducts,
@@ -114,6 +138,7 @@ export async function GET(req: Request) {
       },
       topProducts: topProductsResult,
       topCategories: topCategoriesResult,
+      supermarkets,
     });
   } catch (error) {
     console.error("Admin stats error:", error);

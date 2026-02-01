@@ -5,6 +5,9 @@ import { getUserFromRequest } from "@/server/auth/getUserFromRequest";
 // =========================
 // CREAR SUPERMERCADO (PREMIUM)
 // =========================
+// =========================
+// CREAR SUPERMERCADO (PREMIUM)
+// =========================
 export async function POST(req: Request) {
   const user = await getUserFromRequest(req);
 
@@ -20,9 +23,13 @@ export async function POST(req: Request) {
   const { name, description } = body;
 
   if (!name || typeof name !== "string") {
-    return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Name is required" },
+      { status: 400 }
+    );
   }
 
+  // 1️⃣ Crear supermercado
   const supermarket = await prisma.supermarket.create({
     data: {
       name,
@@ -31,8 +38,25 @@ export async function POST(req: Request) {
     },
   });
 
+  // 2️⃣ Obtener categorías globales
+  const categories = await prisma.category.findMany({
+    orderBy: {
+      defaultOrder: "asc",
+    },
+  });
+
+  // 3️⃣ Crear orden inicial del supermercado
+  await prisma.supermarketCategory.createMany({
+    data: categories.map((cat) => ({
+      supermarketId: supermarket.id,
+      categoryId: cat.id,
+      aisleOrder: cat.defaultOrder,
+    })),
+  });
+
   return NextResponse.json(supermarket, { status: 201 });
 }
+
 
 // =========================
 // LISTAR SUPERMERCADOS DEL USUARIO

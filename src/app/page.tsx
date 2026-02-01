@@ -73,9 +73,12 @@ export default function HomePage() {
 
           {/* FEATURES */}
 <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-  <IconFeature Icon={ShoppingCartIcon} text="Recorrido eficiente" />
-  <IconFeature Icon={ClockIcon} text="Ahorra tiempo" />
-  <IconFeature Icon={DevicePhoneMobileIcon} text="100% sin descargas" />
+  <IconFeature Icon={ShoppingCartIcon} text="Recorrido eficiente" subtitle="Los productos de tu lista se ordenan automáticamente según los pasillos del establecimiento que elijas" />
+
+  <IconFeature Icon={ClockIcon} text="Ahorra tiempo" subtitle="Ahorra tiempo y dinero con un recorrido optimizado. Sin distracciones ni olividos" />
+  
+  <IconFeature Icon={DevicePhoneMobileIcon} text="100% sin descargas" subtitle="Guarda Shoptime en tus favoritos y accede desde la web, sin descargar aplicaciones" />
+
 </section>
 
 
@@ -92,17 +95,22 @@ import type { ComponentType, SVGProps } from "react";
 function IconFeature({
   Icon,
   text,
+  subtitle,
 }: {
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
   text: string;
+  subtitle: string;
 }) {
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="h-12 w-12 rounded-full bg-shop-green-light flex items-center justify-center">
         <Icon className="h-6 w-6 text-white" />
       </div>
-      <span className="text-sm text-shop-blue font-medium">
+      <span className="text-m text-shop-blue">
         {text}
+      </span>
+      <span className="text-sm text-gray-500 font-small">
+        {subtitle}
       </span>
     </div>
   );

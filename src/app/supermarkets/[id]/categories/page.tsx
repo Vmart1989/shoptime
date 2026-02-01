@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Header from "src/app/components/Header";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+
 
 
 // DnD Kit (drag & drop)
@@ -24,11 +26,13 @@ import { CSS } from "@dnd-kit/utilities";
 function SortableItem({
   id,
   name,
+  order,
 }: {
   id: number;
   name: string;
+  order: number;
 }) {
-  // Hook que hace que el elemento sea draggable
+  // Hook que hace que el elemento sea arrastrable
   const {
   attributes,
   listeners,
@@ -47,25 +51,30 @@ function SortableItem({
 
   return (
     <li
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`
-  rounded-lg shadow
-  px-4 py-3
-  flex items-center
-  cursor-grab active:cursor-grabbing
-  border transition
-
-  ${
-    isDragging
-      ? "bg-shop-bg border-shop-blue ring-2 ring-shop-blue"
-      : "bg-white border-gray-200 hover:shadow-md"
-  }
-`}
+    ref={setNodeRef}
+    style={style}
+    {...attributes}
+    {...listeners}
+    className={`
+        rounded-lg shadow
+        px-4 py-2
+        flex items-center gap-3
+        cursor-grab active:cursor-grabbing
+        border transition
+        ${
+        isDragging
+            ? "bg-shop-bg border-shop-blue ring-2 ring-shop-blue"
+            : "bg-white border-gray-200 hover:shadow-md"
+        }
+    `}
     >
-      {name}
+    {/* Número de orden */}
+    <span className="w-6 text-sm font-semibold text-shop-blue text-center">
+        {order}
+    </span>
+
+    {/* Nombre */}
+    <span>{name}</span>
     </li>
   );
 }
@@ -93,9 +102,6 @@ export default function SupermarketCategoriesPage() {
       router.push("/login");
       return;
     }
-
-
-
 
     // Endpoint que devuelve categorías + orden actual
     const res = await fetch(
@@ -213,51 +219,85 @@ const fetchSupermarketName = async () => {
   // Render
   // =========================
   if (loading) {
-    return <p className="p-6">Cargando categorías...</p>;
+    return (
+          <div className="min-h-screen bg-shop-bg flex flex-col">
+            <Header />
+            <div className="flex-1 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-shop-green border-t-transparent" />
+            </div>
+          </div>
+        );
   }
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-shop-blue">
-  {supermarketName || "Ordenar categorías"}
-</h1>
+  <div className="min-h-screen bg-shop-bg flex flex-col">
+    {/* Header */}
+    <Header />
 
-{/* Botón guardar */}
-      <button
-        onClick={saveOrder}
-        className="mt-6 mb-6 bg-green-600 text-white px-4 py-2 rounded w-full"
-      >
-        Guardar orden
-      </button>
-
-      {/* Drag & Drop container */}
-      <DndContext
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={categories.map((c) => c.id)}
-          strategy={verticalListSortingStrategy}
+    {/* Main content */}
+    <main className="flex-1">
+      <div className="p-6 max-w-md mx-auto">
+        <button
+        onClick={() => router.push("/supermarkets")}
+        className="
+            flex items-center gap-2
+            text-sm text-shop-gray
+            hover:text-shop-blue
+            transition mb-4
+        "
         >
-          <ul className="space-y-2">
-            {categories.map((cat) => (
-              <SortableItem
-                key={cat.id}
-                id={cat.id}
-                name={cat.name}
-              />
-            ))}
-          </ul>
-        </SortableContext>
-      </DndContext>
+        <ArrowLeftIcon className="h-4 w-4" />
+        Volver a supermercados
+        </button>
 
-      {/* Botón guardar */}
-      <button
-        onClick={saveOrder}
-        className="mt-6 bg-green-600 text-white px-4 py-2 rounded w-full"
-      >
-        Guardar orden
-      </button>
-    </div>
-  );
+        <h1 className="text-2xl font-bold text-shop-blue">
+          {supermarketName || "Ordenar categorías"}
+        </h1>
+
+        {/* Botón guardar */}
+        <button
+          onClick={saveOrder}
+          className="mt-6 mb-2 bg-green-600 text-white px-4 py-2 rounded w-full"
+        >
+          Guardar orden
+        </button>
+
+        <p className="mb-4 text-gray-500">
+          Pulsa y arrastra para cambiar el orden
+        </p>
+
+        {/* Drag & Drop container */}
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={categories.map((c) => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <ul className="space-y-2">
+              {categories.map((cat, index) => (
+                <SortableItem
+                  key={cat.id}
+                  id={cat.id}
+                  name={cat.name}
+                  order={index + 1}
+                />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
+
+        {/* Botón guardar */}
+        <button
+          onClick={saveOrder}
+          className="mt-6 bg-green-600 text-white px-4 py-2 rounded w-full"
+        >
+          Guardar orden
+        </button>
+      </div>
+    </main>
+  </div>
+);
+
 }
