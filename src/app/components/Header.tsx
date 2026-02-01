@@ -87,7 +87,7 @@ const logout = () => {
           {isLogged && user ? (
   <>
     {/* Usuario */}
-    <div className="flex items-center gap-2 text-sm text-shop-blue">
+    <div  onClick={() => router.push("/user")} className="flex items-center gap-2 text-sm text-shop-blue cursor-pointer">
       <UserCircleIcon className="h-8 w-8" />
       <span className="hidden sm:inline font-medium">
   {user.name || user.email}
@@ -105,6 +105,7 @@ const logout = () => {
     px-3 py-2 sm:px-4
     rounded-md text-sm font-medium
     hover:bg-shop-green-light transition
+    cursor-pointer
   "
   title="Mis listas"
 >
@@ -127,6 +128,7 @@ const logout = () => {
     px-3 py-2 sm:px-4
     rounded-md text-sm font-medium
     hover:bg-shop-blue transition
+    cursor-pointer
   "
   title="Supermercados"
 >
@@ -141,7 +143,7 @@ const logout = () => {
     {/* Logout */}
     <button
   onClick={logout}
-  className="flex items-center gap-1 text-sm text-shop-gray hover:text-shop-blue transition"
+  className="flex items-center gap-1 text-sm text-shop-gray hover:text-shop-blue transition cursor-pointer"
   title="Cerrar sesión"
 >
   <ArrowRightStartOnRectangleIcon className="h-8 w-8 sm:hidden text-shop-blue" />

@@ -45,7 +45,7 @@ export default function HomePage() {
                   onClick={() =>
                     router.push(isLogged ? "/lists" : "/register")
                   }
-                  className="bg-shop-green text-white px-5 py-3 rounded-md font-medium hover:bg-shop-green-light transition"
+                  className="bg-shop-green text-white px-5 py-3 rounded-md font-medium hover:bg-shop-green-light transition cursor-pointer"
                 >
                   {isLogged ? "Ir a mis listas" : "Regístrate Gratis"}
                 </button>
@@ -75,7 +75,7 @@ export default function HomePage() {
 <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
   <IconFeature Icon={ShoppingCartIcon} text="Recorrido eficiente" subtitle="Los productos de tu lista se ordenan automáticamente según los pasillos del establecimiento que elijas" />
 
-  <IconFeature Icon={ClockIcon} text="Ahorra tiempo" subtitle="Ahorra tiempo y dinero con un recorrido optimizado. Sin distracciones ni olividos" />
+  <IconFeature Icon={ClockIcon} text="Ahorra tiempo" subtitle="Ahorra tiempo y dinero con un recorrido optimizado. Sin distracciones ni olvidos" />
   
   <IconFeature Icon={DevicePhoneMobileIcon} text="100% sin descargas" subtitle="Guarda Shoptime en tus favoritos y accede desde la web, sin descargar aplicaciones" />
 
