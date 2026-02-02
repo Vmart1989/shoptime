@@ -57,7 +57,14 @@ export default function RegisterPage() {
       }
 
       // Registro correcto → login
-      router.push("/welcome");
+      const data = await res.json();
+
+    // Guardar token → usuario logeado
+    localStorage.setItem("token", data.token);
+
+    // Redirección post-registro
+    router.push("/welcome");
+
     } catch (err) {
       setError("Error de red");
     } finally {
@@ -97,7 +104,9 @@ export default function RegisterPage() {
             placeholder="Email"
             className="w-full border border-gray-300 rounded-md p-2"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) =>
+            setEmail((e.target.value || "").toLowerCase())
+            }
           />
 
           <input

@@ -148,7 +148,7 @@ const handlePayment = async () => {
               {/* Coupon */}
               <input
                 className="w-full border rounded-md p-2"
-                placeholder="Cupón (opcional)"
+                placeholder="Cupón"
                 value={coupon}
                 onChange={(e) => setCoupon(e.target.value)}
               />
@@ -158,19 +158,73 @@ const handlePayment = async () => {
             </p>
             )}
 
+                        {/* Mockup métodos de pago */}
+            <div className="space-y-3">
+            <p className="text-sm font-medium text-shop-blue">
+                Método de pago
+            </p>
+
+            {/* Tarjeta */}
+            {/* Apple Pay */}
+<div
+  className="
+    flex items-center justify-between
+    border rounded-md p-3
+    opacity-50 cursor-not-allowed
+  "
+>
+  <div className="flex items-center gap-3">
+    <img
+      src="/pay/credit-card-logos.png"
+      alt="Apple Pay"
+      className="h-6 object-contain"
+    />
+    <span className="text-sm text-shop-gray">
+      Pago con tarjeta
+    </span>
+  </div>
+
+</div>
+
+
+            {/* Apple Pay */}
+            <div
+  className="
+    flex items-center justify-between
+    border rounded-md p-3
+    opacity-50 cursor-not-allowed
+  "
+>
+  <div className="flex items-center gap-3">
+    <img
+      src="/pay/apple-pay.png"
+      alt="Apple Pay"
+      className="h-6 object-contain"
+    />
+    
+  </div>
+
+  <span className="text-xs text-gray-400">
+    Próximamente
+  </span>
+</div>
+            </div>
+
+
 
               <button
                 onClick={handlePayment}
-                disabled={processing}
+                disabled={processing || coupon.trim() === ""}
                 className="
-                  w-full bg-shop-green text-white
-                  py-3 rounded-md font-medium
-                  hover:bg-shop-green-light transition
-                  disabled:opacity-50
+                    w-full bg-shop-green text-white
+                    py-3 rounded-md font-medium
+                    hover:bg-shop-green-light transition
+                    disabled:opacity-50 disabled:cursor-not-allowed
                 "
-              >
+                >
                 {processing ? "Procesando pago..." : "Hacerse Premium"}
-              </button>
+                </button>
+
 
               <p className="text-xs text-shop-gray text-center">
                 Pago simulado

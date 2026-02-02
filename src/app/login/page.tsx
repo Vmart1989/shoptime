@@ -50,7 +50,9 @@ export default function LoginPage() {
             className="w-full mb-3 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-shop-green"
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) =>
+            setEmail((e.target.value || "").toLowerCase())
+            }
           />
 
           <input

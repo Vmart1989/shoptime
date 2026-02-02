@@ -53,7 +53,7 @@ export default function HomePage() {
                 {!isLogged && (
                   <button
                     onClick={() => router.push("/login")}
-                    className="border border-gray-300 px-5 py-3 rounded-md text-shop-blue hover:bg-gray-50 transition"
+                    className="border border-gray-300 px-5 py-3 rounded-md text-shop-blue hover:bg-gray-100 transition cursor-pointer"
                   >
                     Acceder
                   </button>
