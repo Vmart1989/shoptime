@@ -8,18 +8,12 @@ import { BuildingStorefrontIcon } from "@heroicons/react/24/outline";
 import { ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
 
-
-
-
-
-
 export default function Header() {
   const router = useRouter();
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState<{ name?: string; email: string } | null>(null);
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith("/admin");
-
 
   // Leer token solo en cliente
   useEffect(() => {

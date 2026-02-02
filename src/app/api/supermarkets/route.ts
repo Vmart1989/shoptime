@@ -5,9 +5,6 @@ import { getUserFromRequest } from "@/server/auth/getUserFromRequest";
 // =========================
 // CREAR SUPERMERCADO (PREMIUM)
 // =========================
-// =========================
-// CREAR SUPERMERCADO (PREMIUM)
-// =========================
 export async function POST(req: Request) {
   const user = await getUserFromRequest(req);
 
